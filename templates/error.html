@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error {{ status_code }} - Apimio Google Search Console Tracker</title>
+    <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+    <style>
+        /* Google-like styling */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            color: #202124;
+            margin: 0;
+            padding: 0;
+        }
+
+        .error-container {
+            max-width: 600px;
+            margin: 10% auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 100px;
+            font-weight: bold;
+            color: #d93025; /* Google Red */
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #5f6368;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #1a73e8; /* Google Blue */
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: 1px solid #1a73e8;
+        }
+
+        a:hover {
+            background-color: #1a73e8;
+            color: #fff;
+        }
+
+        /* Animated 404 Image */
+        .error-icon {
+            width: 150px;
+            margin-bottom: 20px;
+            animation: float 2s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Tooltip for extra user guidance */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 160px;
+            background-color: #202124;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-container">
+        <img src="{{ request.url_for('static', path='images/apimio.png') }}" alt="Error" class="error-icon">
+        <h1>{{ status_code }}</h1>
+        <h2>Oops! Something went wrong.</h2>
+        <p>{{ message }}</p>
+        <p>{{ detail }}</p>
+        
+        <div class="tooltip">
+            <a href="/">Return to Home</a>
+            <span class="tooltip-text">Go back to the main page</span>
+        </div>
+    </div>
+
+</body>
+</html>

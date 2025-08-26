@@ -1,0 +1,344 @@
+<!-- templates/Dashboard/Performance/link_performance.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aggregated Link Performance</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --success-color: #28a745;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --white: #ffffff;
+    }
+
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--light-color);
+      font-family: 'Roboto', sans-serif;
+      color: var(--dark-color);
+    }
+    h1 {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Header Section */
+    .header {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    
+    /* Main Container with Glassmorphism */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* Date Range Form */
+    .date-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .date-form label {
+      font-weight: 500;
+    }
+    .date-form input[type="date"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border 0.3s ease;
+    }
+    .date-form input[type="date"]:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+    .refresh-btn {
+      background-color: var(--success-color);
+      color: var(--white);
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .refresh-btn:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+    
+    /* Performance Table Styles */
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #f1f1f1;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    tbody tr:hover {
+      background: #f5f5f5;
+    }
+    
+    /* Pagination Styles */
+    #pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .pagination-btn {
+      margin: 0 3px;
+      padding: 8px 12px;
+      background-color: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .pagination-btn:hover:not(:disabled) {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .pagination-btn.active {
+      background-color: var(--success-color);
+    }
+    
+    /* Back Link */
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    .back-link:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .date-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Aggregated Performance for {{ link.url }}</h1>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Date Range Form -->
+    <form method="GET" class="date-form">
+      <div>
+        <label for="start">Start Date:</label>
+        <input type="date" id="start" name="start" value="{{ start_date }}">
+      </div>
+      <div>
+        <label for="end">End Date:</label>
+        <input type="date" id="end" name="end" value="{{ end_date }}">
+      </div>
+      <div>
+        <button type="submit" class="refresh-btn">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </form>
+
+    <!-- Aggregated Performance Table -->
+    <div class="table-container">
+      <table id="performanceTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Clicks</th>
+            <th>Impressions</th>
+            <th>CTR</th>
+            <th>Avg. Position</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in perf_data %}
+          <tr>
+            <td>{{ row.date }}</td>
+            <td>{{ row.clicks }}</td>
+            <td>{{ row.impressions }}</td>
+            <td>{{ row.ctr | round(4) }}</td>
+            <td>{{ row.position | round(2) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div id="pagination"></div>
+
+    <!-- Back Link -->
+    <a href="{{ request.url_for('clusters_show_cluster', cluster_id=cluster._id) }}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Cluster
+    </a>
+  </div>
+
+  <!-- Client-side Pagination Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const rowsPerPage = 30;
+      const table = document.getElementById("performanceTable");
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      const totalRows = rows.length;
+      const totalPages = Math.ceil(totalRows / rowsPerPage);
+      const pagination = document.getElementById("pagination");
+
+      // Function to display a given page of rows
+      function showPage(page) {
+        const startIndex = (page - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        rows.forEach((row, index) => {
+          row.style.display = (index >= startIndex && index < endIndex) ? "" : "none";
+        });
+      }
+
+      // Create and update pagination buttons
+      function setupPagination() {
+        pagination.innerHTML = "";
+        let currentPage = 1;
+
+        // Prev Button
+        const prevButton = document.createElement("button");
+        prevButton.innerHTML = "Prev";
+        prevButton.className = "pagination-btn";
+        prevButton.disabled = true;
+        pagination.appendChild(prevButton);
+
+        // Page Number Buttons
+        for (let i = 1; i <= totalPages; i++) {
+          const pageButton = document.createElement("button");
+          pageButton.innerHTML = i;
+          pageButton.className = "pagination-btn";
+          if (i === 1) pageButton.classList.add("active");
+          pagination.appendChild(pageButton);
+
+          pageButton.addEventListener("click", function () {
+            currentPage = i;
+            updateButtons();
+            showPage(currentPage);
+            updateActiveButton();
+          });
+        }
+
+        // Next Button
+        const nextButton = document.createElement("button");
+        nextButton.innerHTML = "Next";
+        nextButton.className = "pagination-btn";
+        if (totalPages <= 1) nextButton.disabled = true;
+        pagination.appendChild(nextButton);
+
+        // Update Prev/Next disabled state
+        function updateButtons() {
+          prevButton.disabled = currentPage === 1;
+          nextButton.disabled = currentPage === totalPages;
+        }
+
+        // Update active button styling
+        function updateActiveButton() {
+          const buttons = pagination.querySelectorAll("button");
+          buttons.forEach(btn => {
+            if (!isNaN(parseInt(btn.innerHTML))) {
+              btn.classList.toggle("active", parseInt(btn.innerHTML) === currentPage);
+            }
+          });
+        }
+
+        prevButton.addEventListener("click", function () {
+          if (currentPage > 1) {
+            currentPage--;
+            showPage(currentPage);
+            updateButtons();
+            updateActiveButton();
+          }
+        });
+
+        nextButton.addEventListener("click", function () {
+          if (currentPage < totalPages) {
+            currentPage++;
+            showPage(currentPage);
+            updateButtons();
+            updateActiveButton();
+          }
+        });
+
+        // Show the first page initially
+        showPage(1);
+      }
+
+      // Only setup pagination if rows exceed rowsPerPage
+      if (totalRows > rowsPerPage) {
+        setupPagination();
+      }
+    });
+  </script>
+</body>
+</html>

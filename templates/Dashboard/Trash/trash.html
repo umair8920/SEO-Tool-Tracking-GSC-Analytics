@@ -1,0 +1,261 @@
+<!-- templates/Dashboard/Trash/trash.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trash</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/trash.css') }}">
+
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --white: #ffffff;
+    }
+
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--light-color);
+      font-family: 'Roboto', sans-serif;
+      color: var(--dark-color);
+    }
+    h1, h2 {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Header Section */
+    .header {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    /* Main Container with Glassmorphism */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Container */
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #f1f1f1;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    tbody tr:hover {
+      background: #f5f5f5;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 8px;
+      padding: 6px 10px;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+    /* Spacing for icons inside buttons */
+    .action-btn i {
+      margin-right: 5px;
+    }
+    /* Restore button styling */
+    .restore-btn {
+      background-color: #28a745;
+      color: #ffffff;
+      border-radius: 4px;
+    }
+    .restore-btn:hover {
+      background-color: #218838;
+    }
+    .action-btn:hover {
+      color: #0056b3;
+    }
+    /* Delete Permanently button styling */
+    .delete-btn {
+      background-color: #d9534f;
+      color: #ffffff;
+      border-radius: 4px;
+    }
+
+    .delete-btn:hover {
+      background-color: #c9302c;
+    }
+
+    /* Section Titles */
+    .section-title {
+      margin-top: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    /* Back Link */
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    .back-link:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Trash</h1>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Trashed Clusters Section -->
+    <h2 class="section-title">Trashed Clusters</h2>
+    {% if trashed_clusters %}
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Cluster Name</th>
+              <th>Domain</th>
+              <th>Deleted At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in trashed_clusters %}
+            <tr>
+              <td>{{ c.clusterName }}</td>
+              <td>{{ c.domain }}</td>
+              <td>{{ c.deletedAt or "N/A" }}</td>
+              <td>
+                <!-- Restore -->
+                <form action="{{ request.url_for('clusters_restore_cluster', cluster_id=c._id) }}" 
+                      method="POST" style="display:inline;">
+                  <button type="submit" class="action-btn">Restore</button>
+                </form>
+                <!-- Delete Permanently -->
+                <button type="button" class="action-btn trigger-delete" 
+                  data-action="{{ request.url_for('clusters_delete_cluster_permanently', cluster_id=c._id) }}">
+                  Delete Permanently
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>No trashed clusters.</p>
+    {% endif %}
+
+    <!-- Trashed Links Section -->
+    <h2 class="section-title">Trashed Links</h2>
+    {% if trashed_links %}
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Link URL</th>
+              <th>Deleted At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for l in trashed_links %}
+            <tr>
+              <td>{{ l.url }}</td>
+              <td>{{ l.deletedAt or "N/A" }}</td>
+              <td>
+                <!-- Restore -->
+                <form action="{{ request.url_for('clusters_restore_link', link_id=l._id) }}" 
+                      method="POST" style="display:inline;">
+                  <button type="submit" class="action-btn">Restore</button>
+                </form>
+                <!-- Delete Permanently -->
+                <button type="button" class="action-btn trigger-delete" 
+                  data-action="{{ request.url_for('clusters_delete_link_permanently', link_id=l._id) }}">
+                  Delete Permanently
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>No trashed links.</p>
+    {% endif %}
+
+    <!-- Back Link -->
+    <a href="{{ request.url_for('clusters_list_clusters') }}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Clusters
+    </a>
+  </div>
+
+  <!-- Custom Confirmation Modal (hidden by default) -->
+  <div id="trash-custom-model" class="modal-overlay">
+    <div class="modal-content">
+      <p id="modal-message">Are you sure you want to delete this item permanently?</p>
+      <div class="modal-actions">
+        <button id="confirm-btn">Yes, Delete</button>
+        <button id="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ request.url_for('static', path='js/trash.js') }}"></script>
+</body>
+</html>

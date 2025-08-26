@@ -1,0 +1,158 @@
+<!-- templates/sites.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Choose a Site</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --white: #ffffff;
+    }
+
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--light-color);
+      font-family: 'Roboto', sans-serif;
+      color: var(--dark-color);
+    }
+    
+    /* Header Section */
+    .header {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.8rem;
+    }
+    
+    /* Main Content Container with Glassmorphism */
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      margin-top: 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.6rem;
+    }
+    
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background: #f1f1f1;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+    tbody tr:hover {
+      background: #f5f5f5;
+    }
+    
+    /* Radio Button Alignment */
+    .radio-container {
+      text-align: center;
+    }
+    
+    /* Button Styling */
+    button {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Choose a Site</h1>
+  </div>
+
+  <!-- Main Content Container -->
+  <div class="container">
+    <h2>Select a Domain Property</h2>
+    <!-- Updated route reference: 'dashboard_select_site' -->
+    <form method="POST" action="{{ request.url_for('dashboard_select_site') }}">
+      <table>
+        <thead>
+          <tr>
+            <th>Site URL</th>
+            <th>Status</th>
+            <th>Permission</th>
+            <th>Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set active_domains = local_domains | selectattr("active") | list %}
+          {% set preselect = active_domains[0].siteUrl if active_domains | length == 1 else None %}
+          {% for domain in local_domains %}
+            {% if domain.active %}
+              <tr>
+                <td>{{ domain.siteUrl }}</td>
+                <td>Active</td>
+                <td>{{ domain.permissionLevel }}</td>
+                <td class="radio-container">
+                  <input type="radio" name="site_url" value="{{ domain.siteUrl }}"
+                    {% if preselect == domain.siteUrl %} checked {% endif %} required>
+                </td>
+              </tr>
+            {% else %}
+              <tr style="opacity: 0.5;">
+                <td>{{ domain.siteUrl }}</td>
+                <td>Inactive</td>
+                <td>{{ domain.permissionLevel }}</td>
+                <td class="radio-container">
+                  <input type="radio" name="site_url" value="{{ domain.siteUrl }}" disabled>
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+</body>
+</html>

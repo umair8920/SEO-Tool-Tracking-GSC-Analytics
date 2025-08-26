@@ -1,0 +1,231 @@
+<!-- templates/clusters/detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cluster Detail</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+
+  
+  <!-- Google Fonts: Inter for headings and Roboto for body text -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/confirm-modal.css') }}">
+
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --success-color: #28a745;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --white: #ffffff;
+    }
+
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--light-color);
+      font-family: 'Roboto', sans-serif;
+      color: var(--dark-color);
+    }
+    h1, h2 {
+      font-family: 'Inter', sans-serif;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    /* Glassmorphism Container */
+    .detail-container {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Button Styles */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease, transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--white);
+    }
+    .btn-primary {
+      background-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-color);
+      font-size: 16px;
+      margin-right: 5px;
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+    .icon-btn:hover {
+      color: #0056b3;
+      transform: scale(1.1);
+    }
+
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f1f1f1;
+      cursor: pointer;
+      user-select: none;
+    }
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--primary-color);
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <div class="container">
+    <div class="detail-container">
+      <h1>Cluster: {{ cluster.clusterName }}</h1>
+      <p>Domain: {{ cluster.domain }}</p>
+
+      <div style="margin-bottom: 20px;">
+        <!-- Updated: link to 'clusters_add_links_form' instead of 'clusters.add_links' -->
+        <a href="{{ request.url_for('clusters_add_links_form_json', cluster_id=cluster._id) }}" 
+           class="btn btn-primary" style="margin-right: 10px;">
+          <i class="fas fa-plus"></i> Add Links
+        </a>
+        <!-- Updated: link to 'clusters_cluster_performance' instead of 'clusters.cluster_performance' -->
+        <a href="{{ request.url_for('clusters_cluster_performance', cluster_id=cluster._id) }}" 
+           class="btn btn-primary">
+          <i class="fas fa-chart-line"></i> View Performance
+        </a>
+      </div>
+
+      <h2>Links</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>STATUS</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for link in links %}
+            <tr>
+              <td>
+                <!-- Updated: link to 'clusters_link_performance' -->
+                <a href="{{ request.url_for('clusters_link_performance', link_id=link._id) }}" 
+                   style="color: var(--primary-color);">
+                  {{ link.url }}
+                </a>
+              </td>
+              <td>
+                {% if link.status == "processing" %}
+                  <i class="fas fa-spinner fa-spin" title="Processing"></i>
+                {% elif link.status == "complete" %}
+                  <i class="fas fa-check-circle" style="color: green;" title="Complete"></i>
+                {% elif link.status == "error" %}
+                  <i class="fas fa-exclamation-triangle" style="color: red;" title="Error"></i>
+                {% else %}
+                  {{ link.status }}
+                {% endif %}
+              </td>
+              <td>
+                  <!-- Manual GSC refresh button -->
+                <form action="{{ request.url_for('clusters_refresh_link_gsc', cluster_id=link.clusterId, link_id=link._id) }}" 
+                method="POST" style="display:inline;" class="refresh-gsc-form">
+                <button type="button" class="icon-btn refresh-gsc-btn" title="Refresh GSC Data" data-link-id="{{ link._id }}">
+                <i class="fas fa-sync-alt"></i>
+                </button>
+                </form>
+                <!-- Updated: link to 'clusters_edit_link_form' instead of 'clusters.edit_link' -->
+                <a href="{{ request.url_for('clusters_edit_link_form', link_id=link._id) }}">
+                  <button class="icon-btn" title="Edit Link">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </a>
+                <!-- Updated: Link deletion form using the confirmation modal -->
+                <form action="{{ request.url_for('clusters_delete_link', link_id=link._id) }}" 
+                method="POST" style="display:inline;" class="delete-link-form">
+                <button type="button" class="icon-btn delete-link-btn" 
+                    title="Delete Link" data-link-id="{{ link._id }}">
+                <i class="fas fa-trash"></i>
+                </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>    
+        </table>
+      </div>
+
+      <!-- Updated: link to 'clusters_list_clusters' for going back -->
+      <a href="{{ request.url_for('clusters_list_clusters') }}" class="back-link">
+        &larr; Back to Clusters
+      </a>
+    </div>
+  </div>
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal">
+      <p id="modal-message">
+        <!-- This text will be dynamically updated based on the action -->
+      </p>
+      <button id="confirm-delete">Confirm</button>
+      <button id="cancel-delete">Cancel</button>
+    </div>
+    <div id="modal-overlay"></div>
+
+
+    <script src="{{ request.url_for('static', path='js/confirm-modal.js') }}"></script>
+</body>
+</html>

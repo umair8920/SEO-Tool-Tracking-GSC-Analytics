@@ -1,0 +1,87 @@
+{% if flash_messages %}
+  <div id="flashModal" class="flash-modal">
+    <div class="flash-content">
+      <div class="flash-header">
+        <h5>Notification</h5>
+      </div>
+      <div class="flash-body">
+        {% for flash in flash_messages %}
+          <div class="alert alert-{{ flash.category }}">
+            {{ flash.message }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Flash Modal Styling */
+    .flash-modal {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      max-width: 90%;
+      z-index: 1050;
+      animation: slideIn 0.5s ease-in-out;
+    }
+
+    .flash-content {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-left: 5px solid #007bff;
+    }
+
+    .flash-header h5 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .flash-body {
+      margin-top: 10px;
+    }
+
+    .alert {
+      margin-bottom: 5px;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    /* Fade-out animation */
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* Slide-in animation */
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+  </style>
+
+  <script>
+    setTimeout(function () {
+      var flashModal = document.getElementById('flashModal');
+      if (flashModal) {
+        flashModal.style.animation = "fadeOut 1s ease-in-out";
+        setTimeout(() => {
+          flashModal.style.display = "none";
+        }, 1000);
+      }
+    }, 5000);
+  </script>
+{% endif %}

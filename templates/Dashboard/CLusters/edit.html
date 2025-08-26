@@ -1,0 +1,136 @@
+<!-- templates/Dashboard/CLusters/edit.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Cluster</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+
+
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome (CDN) for icons -->
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnHq+0b8fWnKxDt6d7vnASJNm+2IGlxyUQO9SJP6eGG1CrC57bd+2R1OXZr0YsKdw8M8f0W3g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Custom CSS for multi-select -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/country-multiselect.css') }}">
+
+  <style>
+    /* Additional local styling if needed */
+    /* (Tailwind classes handle most styling) */
+  </style>
+</head>
+<body class="p-6 bg-gray-100" style="font-family: 'Roboto', sans-serif;">
+  {% include "flash_messages.html" %}
+  <div class="max-w-3xl mx-auto p-6 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold mb-6" style="font-family: 'Inter', sans-serif;">
+      Edit Cluster: {{ cluster.clusterName }}
+    </h1>
+    
+    <!-- IMPORTANT: set the action to the FastAPI POST route name="clusters_edit_cluster_post" -->
+    <form method="POST" 
+          action="{{ request.url_for('clusters_edit_cluster_post', cluster_id=cluster._id) }}"
+          class="space-y-6">
+      
+      <!-- Cluster Name -->
+      <div class="space-y-2">
+        <label class="block font-semibold">New Cluster Name:</label>
+        <input type="text" name="clusterName" value="{{ cluster.clusterName }}" required
+               class="border border-gray-300 rounded-lg px-3 py-2 w-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300" />
+      </div>
+
+      <!-- Device Filter -->
+      <div class="space-y-2">
+        <label class="block font-semibold">Device Filter:</label>
+        <select name="deviceFilter" 
+                class="border border-gray-300 rounded-lg px-3 py-2 w-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+          <option value="ALL" {% if cluster.deviceFilter == 'ALL' %} selected {% endif %}>ALL</option>
+          <option value="DESKTOP" {% if cluster.deviceFilter == 'DESKTOP' %} selected {% endif %}>DESKTOP</option>
+          <option value="MOBILE" {% if cluster.deviceFilter == 'MOBILE' %} selected {% endif %}>MOBILE</option>
+        </select>
+      </div>
+
+      <!-- Country Filter (Multi-Select) -->
+      <div class="cluster-row flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-6">
+        <div class="w-full">
+          <label class="block font-semibold">Country Filter (Multi-Select):</label>
+          <p class="text-sm text-gray-500">
+            If you want <strong>ALL</strong> countries, remove all selected codes.
+          </p>
+          <div class="relative">
+            <!-- Search box -->
+            <input type="text" placeholder="Search countries..."
+                   class="search-box border border-gray-300 rounded-lg px-3 py-2 w-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                   onfocus="showCountryList(this)" 
+                   oninput="filterCountryList(this)" />
+
+            <!-- Container for country checkboxes -->
+            <div class="country-list hidden border border-gray-300 rounded-lg mt-1 bg-white max-h-48 overflow-auto p-2 shadow-sm">
+              <!-- Populated by JS from country-multiselect.js -->
+            </div>
+            <!-- Hidden input to store selected country codes -->
+            <input type="hidden" name="countryFilter" class="selected-countries"
+                   value="{{ cluster.countryFilter if cluster.countryFilter else '' }}" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition">
+        <i class="fas fa-save"></i> Save
+      </button>
+    </form>
+
+    <p class="mt-6">
+      <!-- Updated: link to 'clusters_show_cluster' instead of 'clusters.show_cluster' -->
+      <a href="{{ request.url_for('clusters_show_cluster', cluster_id=cluster._id) }}" 
+         class="text-blue-500 hover:underline">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+    </p>
+  </div>
+
+  <!-- country-multiselect.js for multi-select logic -->
+  <script src="{{ request.url_for('static', path='js/country-multiselect.js') }}"></script>
+  <script>
+    /**
+     * On page load, render the country list so the user sees the selected codes.
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+      const row = document.querySelector('.cluster-row');
+      if (!row) return;
+      const listDiv = row.querySelector('.country-list');
+      const hiddenInput = row.querySelector('.selected-countries');
+      if (listDiv && hiddenInput) {
+        renderCountryList(listDiv, hiddenInput);
+      }
+    });
+
+    /**
+     * Show the country list if hidden, and re-render it if needed.
+     */
+    function showCountryList(input) {
+      const row = input.closest('.cluster-row');
+      const listDiv = row.querySelector('.country-list');
+      const hiddenInput = row.querySelector('.selected-countries');
+      listDiv.classList.remove('hidden');
+      renderCountryList(listDiv, hiddenInput);
+    }
+
+    /**
+     * Filter the country list based on input.
+     */
+    function filterCountryList(input) {
+      filterCountriesInList(input);
+    }
+  </script>
+</body>
+</html>

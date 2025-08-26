@@ -1,0 +1,235 @@
+<!-- templates/Dashboard/CLusters/list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clusters for Domain</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  <!-- Google Fonts: Inter for headings and Roboto for body text -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <!-- External CSS (optional: you can place shared styles in static/css/style.css) -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/confirm-modal.css') }}">
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --white: #ffffff;
+    }
+
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Roboto', sans-serif;
+      background: var(--light-color);
+      color: var(--dark-color);
+      transition: background 0.3s ease;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: var(--white);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+    .btn-secondary {
+      background-color: var(--danger-color);
+      color: var(--white);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-secondary:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      transition: color 0.3s ease, transform 0.2s ease;
+    }
+    .icon-btn:hover {
+      color: #0056b3;
+      transform: scale(1.1);
+    }
+
+    /* Table Styles with Glassmorphism Effect */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f1f1f1;
+      cursor: pointer;
+      user-select: none;
+    }
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .button-group {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .btn {
+        flex: 1;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <div class="container">
+    <div class="header">
+      <h1>Clusters for {{ domain }}</h1>
+      <div class="button-group">
+        <form action="{{ request.url_for('clusters_new_form') }}" method="get" style="display:inline;">
+          <button type="submit" class="btn btn-primary">Create Clusters</button>
+      </form>
+      
+      <form action="{{ request.url_for('clusters_view_trash', domain=domain) }}" method="get" style="display:inline;">
+          <button type="submit" class="btn btn-secondary">
+              <i class="fas fa-trash-alt"></i> View Trash
+          </button>
+      </form>      
+      <form action="{{ request.url_for('auth_logout') }}" method="get" style="display:inline;">
+          <button type="submit" class="btn btn-danger">
+              <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+      </form>      
+      </div>
+    </div>
+    <div class="table-container">
+      <table class="sortable">
+        <thead>
+          <tr>
+            <th>Cluster Name</th>
+            <th>Device Filter</th>
+            <th>Country Filter</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in clusters %}
+          <tr>
+            <td>{{ c.clusterName }}</td>
+            <td>{{ c.deviceFilter or "ALL" }}</td>
+            <td>{{ c.countryFilter or "ALL" }}</td>
+            <td>
+              <a href="{{ request.url_for('clusters_cluster_performance', cluster_id=c._id) }}">
+                <button class="icon-btn" title="View Cluster">
+                  <i class="fas fa-chart-line"></i>
+                </button>
+              </a>
+              <a href="{{ request.url_for('clusters_show_cluster', cluster_id=c._id) }}">
+                <button class="icon-btn" title="View Cluster">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </a>
+              <a href="{{ request.url_for('clusters_edit_cluster_form', cluster_id=c._id) }}">
+                <button class="icon-btn" title="Edit Cluster">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </a>
+              <form action="{{ request.url_for('clusters_delete_cluster', cluster_id=c._id) }}" method="POST" style="display:inline;" class="delete-form">
+                <button type="button" class="icon-btn delete-btn" title="Delete Cluster" data-cluster-id="{{ c._id }}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<!-- Custom Confirmation Modal -->
+<div id="confirm-modal">
+  <p id="modal-message">
+    <!-- This text will be dynamically updated based on the action -->
+  </p>
+  <button id="confirm-delete">Delete</button>
+  <button id="cancel-delete">Cancel</button>
+</div>
+<div id="modal-overlay"></div>
+
+  <script src="{{ request.url_for('static', path='js/tablesort.js') }}"></script>
+  <script src="{{ request.url_for('static', path='js/confirm-modal.js') }}"></script>
+</body>
+</html>

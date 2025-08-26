@@ -1,0 +1,220 @@
+<!-- templates/Dashboard/CLusters/new.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create Clusters</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome (CDN) for icons -->
+  <link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"  
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Custom CSS for the multi-select -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/country-multiselect.css') }}">
+
+  <!-- Custom CSS for modal messages -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/confirm-modal.css') }}">
+
+  <style>
+    /* Optional custom class for glassmorphism effects */
+    .glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body class="p-6 bg-gray-100" style="font-family: 'Roboto', sans-serif;">
+  {% include "flash_messages.html" %}
+
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6" style="font-family: 'Inter', sans-serif;">
+      Create Clusters for {{ domain }}
+    </h1>
+
+    <!-- Container with glass effect -->
+    <div class="p-6 glass rounded-lg shadow-lg">
+      
+      <!-- Container for multiple cluster rows -->
+      <div id="clusters-container" class="space-y-6">
+        <!-- First cluster row -->
+        <div class="cluster-row bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-md transition-shadow duration-300 flex flex-col md:flex-row md:items-center gap-4">
+          
+          <!-- Cluster Name -->
+          <div class="flex-1">
+            <label class="block font-semibold mb-1">Cluster Name:</label>
+            <input type="text" required
+                   class="cluster-name border border-gray-300 rounded px-3 py-2 w-full h-10 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300" />
+          </div>
+
+          <!-- Device Filter -->
+          <div class="flex-1">
+            <label class="block font-semibold mb-1">Device Filter:</label>
+            <select class="cluster-device border border-gray-300 rounded px-3 py-2 w-full h-10 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+              <option value="ALL">ALL</option>
+              <option value="DESKTOP">DESKTOP</option>
+              <option value="MOBILE">MOBILE</option>
+            </select>
+          </div>
+
+          <!-- Country Filter (Multi-Select) -->
+          <div class="flex-1">
+            <label class="block font-semibold mb-1">Country Filter (Multi-Select):</label>
+            <div class="relative">
+              <!-- Search box -->
+              <input type="text" placeholder="Search countries..." 
+                     class="search-box border border-gray-300 rounded px-3 py-2 w-full h-10 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                     onfocus="showCountryList(this)"
+                     oninput="filterCountryList(this)" />
+
+              <!-- Container for the country checkboxes -->
+              <div class="country-list hidden border border-gray-300 rounded mt-1 bg-white max-h-48 overflow-auto p-2 shadow-sm">
+                <!-- Populated by JS -->
+              </div>
+
+              <!-- Hidden input to store selected countries as comma-separated codes -->
+              <input type="hidden" class="selected-countries" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="mt-4 space-x-4">
+        <button type="button" 
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 shadow-md transition-shadow duration-200"
+                onclick="addClusterRow()">
+          <i class="fas fa-plus"></i> Add More
+        </button>
+
+        <!-- Submit as JSON button calls JS function -->
+        <button type="button"
+                class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 shadow-md transition-shadow duration-200"
+                onclick="submitClustersJSON()">
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Modal Markup -->
+  <div id="custom-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="modal-close" class="modal-close">&times;</span>
+      <p id="modal-message"></p>
+    </div>
+  </div>
+
+  <!-- country-multiselect.js handles searching, multi-select, etc. -->
+  <script src="{{ request.url_for('static', path='js/country-multiselect.js') }}"></script>
+  <!-- Include custom JS for modal handling -->
+  <script src="{{ request.url_for('static', path='js/confirm-modal.js') }}"></script>
+
+  <script>
+    /**
+     * Add a new cluster row dynamically.
+     */
+    function addClusterRow() {
+      const container = document.getElementById('clusters-container');
+      const firstRow = container.querySelector('.cluster-row');
+      const newRow = firstRow.cloneNode(true);
+
+      // Clear inputs in the new row.
+      const nameInput = newRow.querySelector('.cluster-name');
+      nameInput.value = '';
+
+      const deviceSelect = newRow.querySelector('.cluster-device');
+      deviceSelect.value = 'ALL';
+
+      const searchBox = newRow.querySelector('.search-box');
+      searchBox.value = '';
+
+      const countryList = newRow.querySelector('.country-list');
+      countryList.innerHTML = '';
+      countryList.classList.add('hidden');
+
+      const hiddenInput = newRow.querySelector('.selected-countries');
+      hiddenInput.value = '';
+
+      container.appendChild(newRow);
+    }
+
+    /**
+     * Show the country list if hidden, and render it if needed.
+     */
+    function showCountryList(input) {
+      const row = input.closest('.cluster-row');
+      const listDiv = row.querySelector('.country-list');
+      const hiddenInput = row.querySelector('.selected-countries');
+
+      listDiv.classList.remove('hidden');
+      renderCountryList(listDiv, hiddenInput);
+    }
+
+    /**
+     * Filter the country list based on input.
+     */
+    function filterCountryList(input) {
+      filterCountriesInList(input);
+    }
+
+    /**
+     * Gather all cluster rows, build JSON, and POST to /clusters/new-json.
+     * Uses a custom modal to show messages instead of alert().
+     */
+    async function submitClustersJSON() {
+      const container = document.getElementById('clusters-container');
+      const rows = container.querySelectorAll('.cluster-row');
+
+      // Build array of clusters.
+      const clusters = [];
+      rows.forEach(row => {
+        const nameInput = row.querySelector('.cluster-name');
+        const deviceSelect = row.querySelector('.cluster-device');
+        const hiddenCountries = row.querySelector('.selected-countries');
+
+        clusters.push({
+          clusterName: nameInput.value.trim(),
+          deviceFilter: deviceSelect.value.trim() || 'ALL',
+          countryFilter: hiddenCountries.value.trim() || 'ALL'
+        });
+      });
+
+      try {
+        const response = await fetch("{{ request.url_for('clusters_new_json') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ clusters })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          showModal("Error: " + (errorData.detail || response.statusText), "danger");
+          return;
+        }
+
+        const data = await response.json();
+        showModal("Success: " + data.detail, "success");
+
+        // Redirect after a short delay.
+        setTimeout(() => {
+          window.location.href = "{{ request.url_for('clusters_list_clusters') }}";
+        }, 1500);
+      } catch (err) {
+        console.error(err);
+        showModal("An unexpected error occurred.", "danger");
+      }
+    }
+  </script>
+</body>
+</html>

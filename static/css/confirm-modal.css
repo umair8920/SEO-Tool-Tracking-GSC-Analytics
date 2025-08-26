@@ -1,0 +1,204 @@
+/* Overlay background */
+#modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  
+  /* Confirmation Modal */
+  #confirm-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 1000;
+    text-align: center;
+    width: 300px;
+  }
+  
+  /* Buttons */
+  #confirm-delete {
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  #cancel-delete {
+    background: gray;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+  }
+ /* Modal overlay styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Hide modal when class 'hidden' is added */
+.modal.hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Prevent background scrolling when modal is open */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 25px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Close button styling */
+/* Overlay (Background) */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Slightly darker for better visibility */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Hide modal when class 'hidden' is added */
+.modal.hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Prevent background scrolling when modal is open */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 25px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* ✨ Entrance Animation (Zoom In & Fade In) */
+.modal-enter {
+  animation: modalZoomIn 0.3s ease-out forwards;
+}
+
+/* ✨ Exit Animation (Zoom Out & Fade Out) */
+.modal-exit {
+  animation: modalZoomOut 0.3s ease-in forwards;
+}
+
+/* ✨ Floating Effect (Gives a soft moving effect) */
+@keyframes floating {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+.modal-content {
+  animation: floating 3s ease-in-out infinite;
+}
+
+/* Zoom In Animation */
+@keyframes modalZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Zoom Out Animation */
+@keyframes modalZoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* Close Button */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #777;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #000;
+  transform: scale(1.2);
+}
+
+/* Flash Message Types */
+.modal-success {
+  border-left: 5px solid #28a745;
+}
+
+.modal-danger {
+  border-left: 5px solid #dc3545;
+}
+
+.modal-warning {
+  border-left: 5px solid #ffc107;
+}
+
+
+  

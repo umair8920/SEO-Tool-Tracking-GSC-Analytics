@@ -1,0 +1,179 @@
+
+:root {
+  --primary-color: #007BFF;
+  --success-color: #28a745;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --white: #ffffff;
+}
+
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 20px;
+  background: var(--light-color);
+  font-family: 'Roboto', sans-serif;
+  color: var(--dark-color);
+}
+
+h1 {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header Section */
+.header {
+  background: var(--primary-color);
+  color: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Main Container with Glassmorphism */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Date Range Form */
+.date-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.date-form label {
+  font-weight: 500;
+}
+.date-form input[type="date"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border 0.3s ease;
+}
+.date-form input[type="date"]:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+.refresh-btn {
+  background-color: var(--success-color);
+  color: var(--white);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.refresh-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+/* Management Button Styling */
+.management-btn {
+  background-color: #6c757d;
+  color: var(--white);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.management-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+}
+.management-link {
+  text-decoration: none;
+}
+
+/* Table Styling */
+.table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+th {
+  background: #f1f1f1;
+  font-weight: 600;
+}
+tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+tbody tr:hover {
+  background: #f5f5f5;
+}
+
+/* Pagination Styling */
+#pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+.pagination-btn {
+  margin: 0 3px;
+  padding: 8px 12px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.pagination-btn:hover:not(:disabled) {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pagination-btn.active {
+  background-color: var(--success-color);
+}
+
+/* Back Link */
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.back-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .date-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+  

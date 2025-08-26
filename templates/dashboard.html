@@ -1,0 +1,176 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Console Dashboard</title>
+  <style>
+    /* Basic reset and background color */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f8fa;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Header styling */
+    .header {
+      background-color: #007BFF;
+      color: #fff;
+      padding: 15px 20px;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      margin: 0;
+    }
+    
+    /* Main container for the content */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    h2 {
+      margin-top: 0;
+    }
+    
+    /* Error message styling */
+    .error {
+      color: red;
+      margin-bottom: 20px;
+    }
+    
+    /* Form styling */
+    form {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    
+    input[type="text"],
+    input[type="date"] {
+      padding: 6px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    
+    button:hover {
+      background-color: #0056b3;
+    }
+    
+    /* Table styling */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+    
+    .no-data {
+      margin-top: 20px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Search Console Dashboard</h1>
+        <!-- New "View Profile" button -->
+        <div style="margin-top: 30px;">
+          <a href="{{ url_for('profile.profile') }}">
+            <button type="button">View Profile</button>
+          </a>
+        </div>
+  </div>
+  
+  <!-- Main Content Container -->
+  <div class="container">
+    
+    <!-- Display any errors -->
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <!-- Query Form -->
+    <form method="POST">
+      <label for="site_url">Site URL (must be registered in Search Console):</label>
+      <input type="text" id="site_url" name="site_url" placeholder="https://apimio.com/" required>
+
+      <label for="start_date">Start Date (YYYY-MM-DD):</label>
+      <input type="date" id="start_date" name="start_date" required>
+
+      <label for="end_date">End Date (YYYY-MM-DD):</label>
+      <input type="date" id="end_date" name="end_date" required>
+
+      <button type="submit">Query Analytics Data</button>
+    </form>
+
+    <!-- Display Search Analytics Results -->
+    {% if data and data.rows %}
+      <h2>Search Analytics Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Clicks</th>
+            <th>Impressions</th>
+            <th>CTR</th>
+            <th>Position</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in data.rows %}
+            <tr>
+              <td>{{ row.date }}</td>
+              <td>{{ row.clicks }}</td>
+              <td>{{ row.impressions }}</td>
+              <td>{{ row.ctr | round(4) }}</td>
+              <td>{{ row.position | round(2) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% elif data %}
+      <p class="no-data">No data available for the selected query parameters.</p>
+    {% endif %}
+    
+  </div> <!-- /container -->
+
+</body>
+</html>

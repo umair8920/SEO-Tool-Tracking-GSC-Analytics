@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Search Console Tracker</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --dark-color: #343a40;
+      --white: #ffffff;
+      --light-color: #f8f9fa;
+    }
+    
+    /* Global Styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--light-color);
+      margin: 0;
+      padding: 20px;
+    }
+    
+    /* Header Section */
+    .header {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      font-family: 'Inter', sans-serif;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    
+    /* Main Container with Glassmorphism Effect */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    /* Text and Button Styling */
+    p {
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 16px;
+      background: var(--primary-color);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+    
+    /* Remove underline from link */
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <div class="header">
+    <h1>Google Search Console Tracker</h1>
+  </div>
+  <div class="container">
+    <p>Welcome! Click below to sign in with your Google account:</p>
+    <a href="{{ request.url_for('auth_authorize') }}">
+      <button>Sign in with Google</button>
+    </a>
+  </div>
+</body>
+</html>

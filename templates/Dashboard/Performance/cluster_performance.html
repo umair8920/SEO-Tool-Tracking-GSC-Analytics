@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cluster Performance</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <!-- Main CSS (layout, table, form styles) -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/perfomance.css') }}">
+  
+  <!-- Graph/Modal CSS -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/graph.css') }}">
+  
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Plotly Library for 3D charts -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <div class="container">
+    <!-- Header Section -->
+    <div class="header">
+      <h1>Performance for Cluster: {{ cluster.clusterName }}</h1>
+      <p>Domain: {{ cluster.domain }}</p>
+    </div>
+    
+    <!-- Date Range Form -->
+    <form method="GET" class="date-form">
+      <div>
+        <label for="start">Start Date:</label>
+        <input type="date" id="start" name="start" value="{{ start_date }}">
+      </div>
+      <div>
+        <label for="end">End Date:</label>
+        <input type="date" id="end" name="end" value="{{ end_date }}">
+      </div>
+      <div>
+        <button type="submit" class="refresh-btn">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+      <div>
+        <a href="{{ request.url_for('clusters_show_cluster', cluster_id=cluster._id) }}" class="management-link">
+          <button type="button" class="management-btn">
+            <i class="fas fa-cogs"></i> Manage Cluster
+          </button>
+        </a>
+      </div>
+    </form>
+    
+    <!-- Separate Buttons for Each Graph -->
+    <div style="text-align: center; margin: 20px 0;">
+      <button id="openModalCtr" class="refresh-btn">
+        <i class="fas fa-chart-line"></i> View CTR Graph
+      </button>
+      <button id="openModalClicks" class="refresh-btn">
+        <i class="fas fa-chart-bar"></i> View Clicks & Impressions Graph
+      </button>
+      <button id="openModalPosition" class="refresh-btn">
+        <i class="fas fa-chart-area"></i> View Average Position Graph
+      </button>
+      <button id="openModal3d" class="refresh-btn">
+        <i class="fas fa-cube"></i> View 3D Chart
+      </button>
+    </div>
+    
+    <!-- Aggregated Performance Table with Pagination -->
+    <div class="table-container">
+      <table id="performanceTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Total Clicks</th>
+            <th>Total Impressions</th>
+            <th>Avg CTR</th>
+            <th>Avg Position</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in perf_data %}
+          <tr>
+            <td>{{ row.date }}</td>
+            <td>{{ row.clicks }}</td>
+            <td>{{ row.impressions }}</td>
+            <td>{{ (row.ctr * 100) | round(2) }}%</td>
+            <td>{{ row.position | round(2) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Pagination Controls -->
+    <div id="pagination"></div>
+    
+    <!-- Back Link -->
+    <a href="{{ request.url_for('clusters_list_clusters') }}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Cluster
+    </a>
+  </div>
+  
+  <!-- Global variable: pass aggregated data from backend to JS -->
+  <script>
+    const perfData = {{ perf_data | tojson }};
+  </script>
+  
+  <!-- Modals for Each Graph -->
+  <!-- Modal for CTR Graph -->
+  <div id="modalCtr" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="modalCtr">&times;</span>
+      <h2>Click-Through Rate (CTR) Graph</h2>
+      <div class="chart-container">
+        <canvas id="ctrChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal for Clicks & Impressions Graph -->
+  <div id="modalClicks" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="modalClicks">&times;</span>
+      <h2>Clicks & Impressions Graph</h2>
+      <div class="chart-container">
+        <canvas id="clicksImpressionsChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal for Average Position Graph -->
+  <div id="modalPosition" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="modalPosition">&times;</span>
+      <h2>Average Position Graph</h2>
+      <div class="chart-container">
+        <canvas id="positionChart"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal for 3D Chart using Plotly -->
+  <div id="modal3d" class="modal">
+    <div class="modal-content">
+      <span class="close" data-modal="modal3d">&times;</span>
+      <h2>3D Performance Chart</h2>
+      <div id="plotly3dChart" class="chart-container"></div>
+    </div>
+  </div>
+  
+  <!-- External JS Files -->
+  <script src="{{ request.url_for('static', path='js/pagination.js') }}"></script>
+  <script src="{{ request.url_for('static', path='js/graph.js') }}"></script>
+</body>
+</html>

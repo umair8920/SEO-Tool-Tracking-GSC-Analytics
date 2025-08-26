@@ -1,0 +1,218 @@
+<!-- templates/clusters/links_add.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add Links</title>
+  <link rel="icon" type="image/x-icon" href="{{ request.url_for('static', path='favicon.ico') }}">
+
+  
+  <!-- Google Fonts for Inter and Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <!-- Custom CSS for modal messages -->
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/confirm-modal.css') }}">
+
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --success-color: #28a745;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --white: #ffffff;
+    }
+
+    /* Global Styles */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--light-color);
+      font-family: 'Roboto', sans-serif;
+      color: var(--dark-color);
+    }
+    h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* Glassmorphism Container */
+    .form-container {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    
+    .link-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    .link-row label {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .link-row input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    .link-row input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--white);
+    }
+    .btn-add {
+      background-color: var(--primary-color);
+    }
+    .btn-add:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+    .btn-submit {
+      background-color: var(--success-color);
+    }
+    .btn-submit:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  {% include "flash_messages.html" %}
+  <div class="container">
+    <h1>Add Links to {{ cluster.clusterName }}</h1>
+    <p>Domain: {{ cluster.domain }}</p>
+    
+    <div class="form-container">
+      <!-- 
+        We don't use a <form method="POST"> here. 
+        We'll gather links in JavaScript and submit them as JSON.
+      -->
+      <div id="links-container">
+        <!-- First link row -->
+        <div class="link-row">
+          <label>Link URL:</label>
+          <input type="text" class="link-url" required>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <button type="button" class="btn btn-add" onclick="addLinkRow()">
+        <i class="fas fa-plus"></i> Add More
+      </button>
+      <button type="button" class="btn btn-submit" onclick="submitLinksJSON()">
+        Submit
+      </button>
+    </div>
+  </div>
+
+  <!-- Custom Modal Markup -->
+  <div id="custom-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="modal-close" class="modal-close">&times;</span>
+      <p id="modal-message"></p>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Clone the first link row, clear the input, and append to #links-container.
+     */
+    function addLinkRow() {
+      const container = document.getElementById('links-container');
+      const firstRow = container.querySelector('.link-row');
+      const newRow = firstRow.cloneNode(true);
+
+      // Clear the input in the new row.
+      const linkInput = newRow.querySelector('.link-url');
+      linkInput.value = '';
+
+      container.appendChild(newRow);
+    }
+
+    /**
+     * Gather all link URLs, send them as JSON to the route:
+     * /clusters/{cluster_id}/links/add-json, and show messages via a custom modal.
+     */
+    async function submitLinksJSON() {
+      const container = document.getElementById('links-container');
+      const rows = container.querySelectorAll('.link-row');
+
+      // Build an array of links.
+      const links = [];
+      rows.forEach(row => {
+        const linkInput = row.querySelector('.link-url');
+        const url = linkInput.value.trim();
+        if (url) {
+          links.push(url);
+        }
+      });
+
+      if (links.length === 0) {
+        showModal("No links provided.", "warning");
+        return;
+      }
+
+      // We'll use the cluster._id from Jinja.
+      const endpoint = "{{ request.url_for('clusters_add_links_json', cluster_id=cluster._id) }}";
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ links })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          showModal("Error: " + (errorData.detail || response.statusText), "danger");
+          return;
+        }
+
+        // Success.
+        const data = await response.json();
+        showModal("Success: " + data.detail, "success");
+
+        // Optionally, redirect to cluster detail after a short delay.
+        setTimeout(() => {
+          window.location.href = "{{ request.url_for('clusters_show_cluster', cluster_id=cluster._id) }}";
+        }, 1500);
+      } catch (err) {
+        console.error(err);
+        showModal("An unexpected error occurred: " + err.message, "danger");
+      }
+    }
+  </script>
+
+  <!-- Include custom JS for modal handling -->
+  <script src="{{ request.url_for('static', path='js/confirm-modal.js') }}"></script>
+</body>
+</html>
